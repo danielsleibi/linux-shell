@@ -200,7 +200,7 @@ void   free_commands(struct cmd_t* clist) {
     } while (clist);
 }
 
-char* get_command(char* buf, int	size, FILE* in) {
+char* get_command(char* buf, int size, FILE* in) {
     char ansi_green_bold[ANSI_MAX_CODE_SIZE];
     char ansi_blue_bold[ANSI_MAX_CODE_SIZE];
     char ansi_white_bold[ANSI_MAX_CODE_SIZE];
