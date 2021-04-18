@@ -2,7 +2,13 @@
 #define PATH_MAX 4096
 #define MAX_USERID_LENGTH 32
 #define NULL_P 0
+#define SIGNALS 31
 #define PS_FORMAT "%5s %s\t%8s %s\n"
+#define GETCWD_ERRNO -1
+#define RETRIEVE_USERNAME_ERRNO -1
+#define CHDIR_ERRNO -2
+#define KILL_ERRNO -1
+#define UNKNOWN_SIG_ERRNO -2
 
 /**
  * @brief Prints current working directory
@@ -15,6 +21,7 @@ int pwd();
  *
  * @param path location to change current directory to, NULL_P to set location to home dir
  * @return Error code, 0 if success
+ * @note cd has to be called in the parent process, else the changes will only happen to the child
  */
 int cd(const char* path);
 /**
@@ -31,4 +38,6 @@ int ps(int all);
  * @param list should print the signal list that the command can send?, 0 false, 1 true
  * @return Error code, 0 if success
  */
-int kill(int pid, int signal, int list);
+int send_signal(int pid, int signal, int list);
+int send_signal_s(int pid, char* signal, int list);
+

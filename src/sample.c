@@ -25,6 +25,8 @@ int main(int argc, char** argv) {
 
     while ((ent = readdir(dir)) != NULL) {
         flag = 1;
+
+        // Check if file name is digit or not
         for (i = 0; ent->d_name[i]; i++)
             if (!isdigit(ent->d_name[i])) {
                 flag = 0;
@@ -33,6 +35,8 @@ int main(int argc, char** argv) {
 
         if (flag) {
             sprintf(path, "/proc/%s/fd/0", ent->d_name);
+            printf("path %s\n", path);
+            fflush(stdout);
             fd = open(path, O_RDONLY);
             tty = ttyname(fd);
 
@@ -45,6 +49,7 @@ int main(int argc, char** argv) {
 
                 for (i = 0; i < 11; i++)
                     fscanf(file, "%lu", &time);
+
                 fscanf(file, "%lu", &stime);
                 time = (int)((double)(time + stime) / sysconf(_SC_CLK_TCK));
                 sprintf(time_s, "%02lu:%02lu:%02lu",
