@@ -8,14 +8,14 @@
 #include "../headers/commands.h"
 #include "../headers/ansicode.h"
 
-char ansi_red[ANSI_MAX_CODE_SIZE];
-char ansi_red_italic[ANSI_MAX_CODE_SIZE];
-char ansi_reset[ANSI_MAX_CODE_SIZE];
+char ansi_red[ANSI_MAX_CODE_SIZE]; // Use for errors
+char ansi_red_italic[ANSI_MAX_CODE_SIZE]; // Use for info
+char ansi_reset[ANSI_MAX_CODE_SIZE]; // reset
 
 
 void main(void) {
-    generate_code(ansi_red, ANSI_MOD_RESET, ANSI_CLR_RED); // Use for errors
-    generate_code(ansi_red_italic, ANSI_MOD_ITALIC, ANSI_CLR_RED); // Use for info
+    generate_code(ansi_red, ANSI_MOD_RESET, ANSI_CLR_RED);
+    generate_code(ansi_red_italic, ANSI_MOD_ITALIC, ANSI_CLR_RED);
     generate_code(ansi_reset, ANSI_MOD_RESET, ANSI_MOD_RESET);
 
     char linebuf[MAX_LINE_LEN];

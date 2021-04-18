@@ -6,7 +6,7 @@ cd to the cloned directory and run the following commands:
 
 ### Build:
 
-> $ gcc src/shell.c -o bin/shell
+> $ gcc src/shell.c src/commands.c src/ansicode.c -o bin/shell
 
 ### Run:
 
