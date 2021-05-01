@@ -2,22 +2,26 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <limits.h>
-#include <string.h>
+#include <string.h> 
 #include <ctype.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
 #include "../headers/shell.h"
 #include "../headers/commands.h"
 #include "../headers/ansicode.h"
+#include "../headers/essentials.h"
 
 char ansi_red[ANSI_MAX_CODE_SIZE]; // Use for errors
 char ansi_red_italic[ANSI_MAX_CODE_SIZE]; // Use for info
-char ansi_reset[ANSI_MAX_CODE_SIZE]; // reset
+char ansi_reset[ANSI_MAX_CODE_SIZE]; // Use to reset
 
 
 void main(void) {
     generate_code(ansi_red, ANSI_MOD_RESET, ANSI_CLR_RED);
     generate_code(ansi_red_italic, ANSI_MOD_ITALIC, ANSI_CLR_RED);
     generate_code(ansi_reset, ANSI_MOD_RESET, ANSI_MOD_RESET);
-
+    //system("clear");
     char linebuf[MAX_LINE_LEN];
     struct cmd_t* commands;
 
@@ -32,14 +36,7 @@ void main(void) {
 
 
 
-void* ck_malloc(size_t   size) {
-    void* ret = malloc(size);
-    if (!ret) {
-        perror("shell:malloc");
-        exit(1);
-    }
-    return ret;
-}
+
 
 char* skip_to_non_ws(char* p) {
     int    ch;
@@ -67,17 +64,20 @@ struct cmd_t* parse_commands(char* line) {
 
     ptr = skip_to_non_ws(line);
     if (!ptr) return 0;
-    cur = ck_malloc(sizeof * cur);
+    cur = e_malloc(sizeof * cur);
     cur->next = 0;
     cur->exe_path = ptr;
     cur->arg[0] = ptr;
     cur->terminator = END_OF_LINE;
     ix = 1;
     for (;;) {
+        // skip to end of argument
         ptr = skip_to_ws_or_sep(ptr);
         if (!ptr) {
             break;
         }
+
+        // if ends with ; parse next command
         if (*ptr == SEQ_OP) {
             *ptr = 0;
             cur->next = parse_commands(ptr + 1);
@@ -91,14 +91,7 @@ struct cmd_t* parse_commands(char* line) {
         if (!ptr) {
             break;
         }
-        if (*ptr == SEQ_OP) {
-            /* found a sequence operator */
-            cur->next = parse_commands(ptr + 1);
-            if (cur->next) {
-                cur->terminator = SEQUENCE;
-            }
-            break;
-        }
+
         cur->arg[ix] = ptr;
         ++ix;
     }
@@ -106,81 +99,30 @@ struct cmd_t* parse_commands(char* line) {
     return cur;
 }
 
-void   execute(struct cmd_t* clist) {
-    int    pid, npid, stat;
-
-    if (!strcmp(clist->exe_path, "cd")) {
-        const char* path = clist->arg[1];
-        if (!path) {
-            cd(NULL_P);
-        } else
-            cd(path);
-    } else if (!strcmp(clist->exe_path, "exit")) {
+void execute(struct cmd_t* clist) {
+    if (!strcmp(clist->exe_path, "exit")) {
         exit(0);
+    }
+    if (!strcmp(clist->exe_path, "cd")) {
+        handle_cd(clist);
     } else {
+        int pid, npid, stat;
         pid = fork();
         if (pid == -1) {
-            perror("shell:fork");
+            e_perror("shell:fork");
             exit(1);
         }
         if (!pid) {
             /* child */
-
-            if (!strcmp(clist->exe_path, "pwd")) {
-                pwd();
-                exit(0);
-            } else  if (!strcmp(clist->exe_path, "kill")) {
-                int flag = 1;
-                for (int i = 0; clist->arg[1][i]; i++)
-                    if (!isdigit(clist->arg[1][i])) {
-                        flag = 0;
-                        break;
-                    }
-
-                if (clist->nargs == 3) {
-                    for (int i = 0; clist->arg[2][i]; i++)
-                        if (!isdigit(clist->arg[2][i])) {
-                            printf("%sInvalid pid\n", ansi_red);
-                            exit(0);
-                        }
-                    if (flag) {
-                        int r = send_signal(atoi(clist->arg[2]), atoi(clist->arg[1]), 0);
-                        if (r == UNKNOWN_SIG_ERRNO) {
-                            printf("%sUnknown signal: use kill -l\n", ansi_red_italic);
-                        }
-                    } else {
-                        int r = send_signal_s(atoi(clist->arg[2]), clist->arg[1], 0);
-                        if (r == UNKNOWN_SIG_ERRNO) {
-                            printf("%sUnknown signal: use kill -l\n", ansi_red_italic);
-                        }
-                    }
-
-                } else if (clist->nargs == 2) {
-                    if (!strcmp(clist->arg[1], "-l")) {
-                        send_signal(NULL_P, NULL_P, 1);
-                        exit(0);
-                    }
-                    if (!flag) {
-                        printf("%sInvalid pid\n", ansi_red);
-                        exit(0);
-                    }
-                    int r = send_signal(atoi(clist->arg[1]), NULL_P, 0);
-                    if (r == UNKNOWN_SIG_ERRNO) {
-                        printf("%sUnknown signal: use kill -l\n", ansi_red_italic);
-                    }
-                } else {
-                    printf("%sInvalid args: use kill signal pid\n", ansi_red_italic);
-                }
-                exit(0);
-            }
+            handle_pwd(clist);
+            handle_ps(clist);
+            handle_kill(clist);
             execvp(clist->exe_path, clist->arg);
             fprintf(stderr, "%sCommand undefined: %s\n", ansi_red_italic, clist->exe_path);
             exit(1);
         }
 
         do {
-
-
             npid = wait(&stat);
             printf("%sProcess %d exited with status %d\n", ansi_reset, npid, stat);
         } while (npid != pid);
@@ -222,6 +164,7 @@ char* get_command(char* buf, int size, FILE* in) {
     if (!getcwd(cwd, sizeof(cwd))) {
         strcpy(cwd, "UNKNOWN");
     }
+
     char str[MAX_LINE_LEN];
 
     sprintf(str, "\n%s(%s%s%s) - %s%s%s\n>>>%s ",
@@ -232,4 +175,90 @@ char* get_command(char* buf, int size, FILE* in) {
         fputs(str, stdout);
     }
     return fgets(buf, size, in);
+}
+
+void handle_pwd(struct cmd_t* c) {
+    if (strcmp(c->exe_path, "pwd"))
+        return;
+
+    if (c->nargs != 1) {
+        e_print_info("Unrecognized arguments: use pwd");
+        exit(0);
+    }
+    pwd();
+    exit(0);
+}
+void handle_cd(struct cmd_t* c) {
+    if (strcmp(c->exe_path, "cd"))
+        return;
+    if (c->nargs > 2) {
+        e_print_info("Invalid args: use cd path");
+        return;
+    }
+    const char* path = c->arg[1];
+    if (!path) {
+        cd(NULL_P);
+    } else
+        cd(path);
+}
+void handle_ps(struct cmd_t* c) {
+    if (strcmp(c->exe_path, "ps"))
+        return;
+    if (c->nargs == 2) {
+        if (!strcmp(c->arg[1], "-A")) {
+            ps(1);
+        } else {
+            e_print_info("Unknown argument: use ps -A");
+        }
+        exit(0);
+    }
+    ps(0);
+    exit(0);
+
+}
+void handle_kill(struct cmd_t* c) {
+    if (strcmp(c->exe_path, "kill"))
+        return;
+    if (c->nargs == 1) {
+        e_print_info("Missing args use: kill signal pid");
+        exit(0);
+    }
+    int flag = e_isinteger(c->arg[1]);
+    if (c->nargs == 3) {
+        int pid_flag = e_isinteger(c->arg[2]);
+        if (!pid_flag) {
+            e_print_error("Invalid pid");
+            exit(0);
+        }
+
+        if (flag) {
+            int r = send_signal(atoi(c->arg[2]), atoi(c->arg[1]), 0);
+            if (r == UNKNOWN_SIG_ERRNO) {
+                e_print_info("Unknown signal: use kill -l to list signals");
+            }
+        } else {
+            int r = send_signal_s(atoi(c->arg[2]), c->arg[1], 0);
+            if (r == UNKNOWN_SIG_ERRNO) {
+                e_print_info("Unknown signal: use kill -l to print signals");
+            }
+        }
+        exit(0);
+    } else if (c->nargs == 2) {
+        if (!strcmp(c->arg[1], "-l")) {
+            send_signal(NULL_P, NULL_P, 1);
+            exit(0);
+        }
+        if (!flag) {
+            e_print_error("Invalid args: use kill pid");
+            exit(0);
+        }
+        int r = send_signal(atoi(c->arg[1]), NULL_P, 0);
+        if (r == UNKNOWN_SIG_ERRNO) {
+            e_print_info("Unknown signal: use kill -l");
+        }
+        exit(0);
+    }
+    e_print_info("Invalid args: use kill signal pid");
+    fflush(stdout);
+    exit(0);
 }

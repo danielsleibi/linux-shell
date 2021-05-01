@@ -3,7 +3,7 @@
 #define MAX_USERID_LENGTH 32
 #define NULL_P 0
 #define SIGNALS 31
-#define PS_FORMAT "%5s %s\t%8s %s\n"
+#define PS_FORMAT "%s%10s %s\t%8s %s\n"
 #define GETCWD_ERRNO -1
 #define RETRIEVE_USERNAME_ERRNO -1
 #define CHDIR_ERRNO -2
@@ -40,4 +40,5 @@ int ps(int all);
  */
 int send_signal(int pid, int signal, int list);
 int send_signal_s(int pid, char* signal, int list);
+
 

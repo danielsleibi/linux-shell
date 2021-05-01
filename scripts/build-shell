@@ -1,0 +1,1 @@
+gcc src/shell.c src/commands.c src/ansicode.c src/essentials.c -o bin/shell

@@ -15,11 +15,13 @@ struct cmd_t {
     char* arg[MAX_ARGS];
 };
 
-void* ck_malloc(size_t   size);
 char* skip_to_non_ws(char* p);
 char* skip_to_ws_or_sep(char* p);
 struct cmd_t* parse_commands(char* line);
 void execute(struct cmd_t* clist);
 void free_commands(struct cmd_t* clist);
 char* get_command(char* buf, int	size, FILE* in);
-void get_working_dir(char* dir);
+void handle_pwd(struct cmd_t* c);
+void handle_cd(struct cmd_t* c);
+void handle_ps(struct cmd_t* c);
+void handle_kill(struct cmd_t* c);
