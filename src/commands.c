@@ -28,10 +28,13 @@ char signals[SIGNALS][7] = {
 };
 
 int pwd() {
+    // Generate color codes
     char ansi_red[ANSI_MAX_CODE_SIZE];
     char ansi_reset[ANSI_MAX_CODE_SIZE];
     generate_code(ansi_red, ANSI_MOD_RESET, ANSI_CLR_RED);
     generate_code(ansi_reset, ANSI_MOD_RESET, ANSI_CLR_RESET);
+
+    // Get directory
     char cwd[PATH_MAX];
     if (!getcwd(cwd, sizeof(cwd))) {
         e_perror("commands:getcwd");
@@ -42,7 +45,7 @@ int pwd() {
 }
 int cd(const char* path) {
     const char* p;
-
+    // Cd to home /home/[user]
     if (path == NULL_P) {
         char username[MAX_USERID_LENGTH];
         if (getlogin_r(username, MAX_USERID_LENGTH)) {
@@ -54,6 +57,7 @@ int cd(const char* path) {
         strcat(temp, username);
         p = temp;
     } else {
+        // Cd to specifiec path
         p = path;
     }
     if (chdir(p) == -1) {
@@ -63,11 +67,13 @@ int cd(const char* path) {
     return SUCCESS;
 }
 int ps(int all) {
+    // Generate color codes
     char error_message[PATH_MAX];
     char ansi_red[ANSI_MAX_CODE_SIZE];
     char ansi_reset[ANSI_MAX_CODE_SIZE];
     generate_code(ansi_red, ANSI_MOD_RESET, ANSI_CLR_RED);
     generate_code(ansi_reset, ANSI_MOD_RESET, ANSI_CLR_RESET);
+
     DIR* dir;
     struct dirent* ent;
     int i, fd_self, fd;
@@ -77,21 +83,24 @@ int ps(int all) {
     FILE* file;
 
 
+    // Open proc for reading
     dir = opendir("/proc");
     if (dir == NULL) {
         e_perror("commands:opendir");
         return -1;
     }
 
+    // Store terminal name of current proccess
     fd_self = open("/proc/self/fd/0", O_RDONLY);
     if (fd_self == -1) {
         e_perror("commands:open");
         return -2;
     }
+    sprintf(tty_self, "%s", ttyname(fd_self));
 
-    sprintf(tty_self, "%s", ttyname(fd_self)); // Store terminal name of current proccess
+
+    // Read proc, loop through all process files
     printf(PS_FORMAT, ansi_reset, "PID", "TTY", "TIME", "CMD");
-
     while ((ent = readdir(dir)) != NULL) {
         // Check if the file is a process
         flag = e_isinteger(ent->d_name);
@@ -99,10 +108,10 @@ int ps(int all) {
             sprintf(path, "/proc/%s/fd/0", ent->d_name);
             fd = open(path, O_RDONLY);
             tty = ttyname(fd);
-
             // print if the process belongs to current terminal,
             // or the all option is true
-            if (tty && (strcmp(tty, tty_self) == 0) || all) {
+            if (tty && !(strcmp(tty, tty_self)) || all) {
+                //   printf("IN CONDITION\n");
                 sprintf(path, "/proc/%s/stat", ent->d_name);
                 file = fopen(path, "r");
                 if (file == NULL) {
@@ -116,10 +125,10 @@ int ps(int all) {
                 cmd[strlen(cmd) - 1] = '\0';
 
                 // Skip stats 1-13 and store stat 14 (which is utime)
-                /* utime: Amount of time that this process has been scheduled
-                 * in user mode, measured in clock ticks (divided by
-                 * sysconf(_SC_CLK_TCK)).
-                 */
+                // utime: Amount of time that this process has been scheduled
+                // in user mode, measured in clock ticks (divided by
+                // sysconf(_SC_CLK_TCK)).
+
                 for (i = 0; i < 11; i++)
                     fscanf(file, "%lu", &time);
                 // store stime(15): Amount of time that this process has been scheduled
@@ -148,36 +157,50 @@ int ps(int all) {
     return SUCCESS;
 }
 
-int send_signal(int pid, int signal, int list) {
+int send_signal(int* pid, int pids, int signal, int list) {
+    // Generate color codes
     char ansi_reset[ANSI_MAX_CODE_SIZE];
     generate_code(ansi_reset, ANSI_MOD_RESET, ANSI_CLR_RESET);
+
+    // check if should print a list of SIGNALS
     if (list) {
         for (int i = 0; i < SIGNALS; i++) {
             printf("%s%s ", ansi_reset, signals[i]);
         }
         printf("\n");
     }
+    // Exit function no need to continue
     if (pid == NULL_P)
         return SUCCESS;
 
+    // Init default sig and change to specified sig if exists
     int sig = SIGTERM;
     if (signal > SIGNALS || signal < NULL_P) {
         return UNKNOWN_SIG_ERRNO;
     }
     if (signal != NULL_P)
         sig = signal;
-    printf("%sSending %s to %d\n", ansi_reset, signals[sig - 1], pid);
-    if (kill(pid, sig) == -1) {
-        e_perror("commands:kill");
-        return KILL_ERRNO;
+
+    if (pids < 0) {
+        e_print_error("Invalid number of pids");
+    }
+    // Send signal
+    for (int i = 0; i < pids; i++) {
+        if (pid[i] == NULL_P)
+            continue;
+        printf("%sSending %s to %d\n", ansi_reset, signals[sig - 1], pid[i]);
+        if (kill(pid[i], sig) == -1) {
+            e_perror("commands:kill");
+            //  return KILL_ERRNO;
+        }
     }
     return SUCCESS;
 }
 
-int send_signal_s(int pid, char* signa, int list) {
+int send_signal_s(int* pid, int pids, char* signa, int list) {
     for (int i = 0; i < SIGNALS; i++) {
         if (strcmp(signa, signals[i]) == 0) {
-            return send_signal(pid, i + 1, list);
+            return send_signal(pid, pids, i + 1, list);
         }
     }
     return UNKNOWN_SIG_ERRNO;

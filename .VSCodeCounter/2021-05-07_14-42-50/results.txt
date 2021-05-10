@@ -1,0 +1,39 @@
+Date : 2021-05-07 14:42:50
+Directory : /home/daniel/Documents/vscode-projects/linux-shell
+Total : 11 files,  676 codes, 106 comments, 122 blanks, all 904 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| C        |          6 |        603 |         48 |        105 |        756 |
+| C++      |          4 |         66 |         58 |         10 |        134 |
+| Markdown |          1 |          7 |          0 |          7 |         14 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                    | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                       |         11 |        676 |        106 |        122 |        904 |
+| headers                                                                 |          4 |         66 |         58 |         10 |        134 |
+| src                                                                     |          6 |        603 |         48 |        105 |        756 |
++-------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                | language | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| /home/daniel/Documents/vscode-projects/linux-shell/README.md            | Markdown |          7 |          0 |          7 |         14 |
+| /home/daniel/Documents/vscode-projects/linux-shell/headers/ansicode.h   | C++      |         20 |          0 |          1 |         21 |
+| /home/daniel/Documents/vscode-projects/linux-shell/headers/commands.h   | C++      |         16 |         35 |          4 |         55 |
+| /home/daniel/Documents/vscode-projects/linux-shell/headers/essentials.h | C++      |          5 |         23 |          1 |         29 |
+| /home/daniel/Documents/vscode-projects/linux-shell/headers/shell.h      | C++      |         25 |          0 |          4 |         29 |
+| /home/daniel/Documents/vscode-projects/linux-shell/src/ansicode.c       | C        |          6 |          0 |          4 |         10 |
+| /home/daniel/Documents/vscode-projects/linux-shell/src/commands.c       | C        |        160 |         32 |         22 |        214 |
+| /home/daniel/Documents/vscode-projects/linux-shell/src/essentials.c     | C        |         46 |          8 |         12 |         66 |
+| /home/daniel/Documents/vscode-projects/linux-shell/src/parser.c         | C        |         46 |          2 |         13 |         61 |
+| /home/daniel/Documents/vscode-projects/linux-shell/src/sample.c         | C        |         55 |          1 |         10 |         66 |
+| /home/daniel/Documents/vscode-projects/linux-shell/src/shell.c          | C        |        290 |          5 |         44 |        339 |
+| Total                                                                   |          |        676 |        106 |        122 |        904 |
++-------------------------------------------------------------------------+----------+------------+------------+------------+------------+

@@ -33,12 +33,22 @@ int ps(int all);
 /**
  * @brief Send a signal to a process
  *
- * @param pid id of process to signal, if NULL_P is passed no signal will be sent
+ * @param pid  list of ids of processes  to signal, if NULL_P is passed no signal will be sent
+ * @param pids number of processes to signal
  * @param signal signal to send, NULL_P to send SIGTERM
  * @param list should print the signal list that the command can send?, 0 false, 1 true
  * @return Error code, 0 if success
  */
-int send_signal(int pid, int signal, int list);
-int send_signal_s(int pid, char* signal, int list);
+int send_signal(int* pid, int pids, int signal, int list);
+/**
+ * @brief Send signal with specified string name of signal to process, uses send_signal()
+ *
+ * @param pid list of ids of processes to signal, if NULL_P is passed no signal will be sent
+ * @param pids number of processes to signal
+ * @param signal signal name to send, NULL_P to send SIGTERM
+ * @param list should print the signal list that the command can send?, 0 false, 1 true
+ * @return Error code, 0 if success
+ */
+int send_signal_s(int* pid, int pids, char* signal, int list);
 
 

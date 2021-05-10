@@ -27,3 +27,5 @@ void e_print_info(char* s);
  * @note Uneeded allocated memory must be freed, or it might cause memory leak
  */
 void* e_malloc(size_t size);
+
+int e_exists(const char* fname);

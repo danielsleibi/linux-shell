@@ -64,3 +64,12 @@ void* e_malloc(size_t size) {
     }
     return mem;
 }
+
+int e_exists(const char* fname) {
+    FILE* file;
+    if ((file = fopen(fname, "r"))) {
+        fclose(file);
+        return 1;
+    }
+    return 0;
+}

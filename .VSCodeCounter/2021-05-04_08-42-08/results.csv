@@ -1,0 +1,13 @@
+"filename", "language", "C", "C++", "Markdown", "comment", "blank", "total"
+"/home/daniel/Documents/vscode-projects/linux-shell/README.md", "Markdown", 0, 0, 7, 0, 7, 14
+"/home/daniel/Documents/vscode-projects/linux-shell/headers/ansicode.h", "C++", 0, 20, 0, 0, 1, 21
+"/home/daniel/Documents/vscode-projects/linux-shell/headers/commands.h", "C++", 0, 16, 0, 25, 4, 45
+"/home/daniel/Documents/vscode-projects/linux-shell/headers/essentials.h", "C++", 0, 5, 0, 23, 1, 29
+"/home/daniel/Documents/vscode-projects/linux-shell/headers/shell.h", "C++", 0, 25, 0, 0, 4, 29
+"/home/daniel/Documents/vscode-projects/linux-shell/src/ansicode.c", "C", 6, 0, 0, 0, 4, 10
+"/home/daniel/Documents/vscode-projects/linux-shell/src/commands.c", "C", 154, 0, 0, 21, 18, 193
+"/home/daniel/Documents/vscode-projects/linux-shell/src/essentials.c", "C", 46, 0, 0, 8, 12, 66
+"/home/daniel/Documents/vscode-projects/linux-shell/src/parser.c", "C", 46, 0, 0, 2, 13, 61
+"/home/daniel/Documents/vscode-projects/linux-shell/src/sample.c", "C", 55, 0, 0, 1, 10, 66
+"/home/daniel/Documents/vscode-projects/linux-shell/src/shell.c", "C", 274, 0, 0, 5, 37, 316
+"Total", "-", 581, 66, 7, 85, 111, 850

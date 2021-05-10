@@ -5,6 +5,8 @@
 #define END_OF_LINE 0
 #define SEQ_OP ';'
 #define SEQUENCE 1
+#define PIPE_OP '|'
+#define PIPE 2
 
 
 struct cmd_t {
