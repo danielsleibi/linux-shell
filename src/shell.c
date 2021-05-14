@@ -186,6 +186,7 @@ void execute(struct cmd_t* clist) {
         /* child */
         if (clist->terminator == PIPE) {
             execute_pipe(clist, clist->next);
+            exit(0);
         }
 
         handle_pwd(clist);
@@ -206,8 +207,11 @@ void execute(struct cmd_t* clist) {
 next:
     switch (clist->terminator) {
     case SEQUENCE:
-    case PIPE:
         execute(clist->next);
+    case PIPE:
+        if (clist->next->next) {
+            execute(clist->next->next);
+        }
         break;
     }
 

@@ -205,10 +205,3 @@ int send_signal_s(int* pid, int pids, char* signa, int list) {
     }
     return UNKNOWN_SIG_ERRNO;
 }
-
-
-// int main() {
-//     int r = ps(1);
-//     printf("\033[0mResult: %d\n", r);
-//     return SUCCESS;
-// }
